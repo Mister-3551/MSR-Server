@@ -3,7 +3,7 @@ package eu.msr.server.record;
 import eu.msr.server.security.validator.anno.*;
 
 @ValidPassword
-public record SignUpRequest(
+public record SignUpRequest (
         @ValidFullName
         String fullName,
         @ValidUsername

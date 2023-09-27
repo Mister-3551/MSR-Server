@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public interface UsersRepository extends JpaRepository<User, Integer> {
+public interface UsersRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT " +
             "u.id, " +

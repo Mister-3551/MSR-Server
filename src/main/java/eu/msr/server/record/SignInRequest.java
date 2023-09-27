@@ -1,6 +1,6 @@
 package eu.msr.server.record;
 
-public record SignInRequest(
+public record SignInRequest (
         String usernameOrEmailAddress,
         String password) {
 }

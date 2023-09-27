@@ -91,19 +91,4 @@ public class AuthService {
         }
         return "Something went wrong";
     }
-
-    public Map<String, String> handleValidationException(MethodArgumentNotValidException methodArgumentNotValidException) {
-        Map<String, String> errors = new HashMap<>();
-        List<ObjectError> globalErrors = methodArgumentNotValidException.getBindingResult().getGlobalErrors();
-        List<FieldError> fieldErrors = methodArgumentNotValidException.getBindingResult().getFieldErrors();
-
-        for (ObjectError error : globalErrors) {
-            errors.put("global", error.getDefaultMessage());
-        }
-
-        for (FieldError error : fieldErrors) {
-            errors.put(error.getField(), error.getDefaultMessage());
-        }
-        return errors;
-    }
 }

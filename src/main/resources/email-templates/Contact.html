@@ -1,0 +1,36 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Contact Form Response</title>
+        <style>
+            .container {
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #f1f1f1;
+                padding: 30px;
+            }
+            h1 {
+                text-align: center;
+                color: #333333;
+            }
+            p {
+                font-size: 16px;
+                color: #555555;
+                line-height: 1.5;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Contact Form Response</h1>
+            <p>Dear {{name}}</p>
+            <p>Thank you for contacting us. We have received your message and will get back to you as soon as possible.</p>
+            <p>Here is a copy of the message you sent:</p>
+            <p>{{message}}</p>
+            <p>If you have any further questions or concerns, please do not hesitate to contact us again.</p>
+            <p>Best regards,</p>
+            <p>The Memo Stick Rescue Team</p>
+        </div>
+    </body>
+</html>
