@@ -8,6 +8,7 @@ import java.util.Properties;
 public class Sender {
 
     public static String send(String sender, String password, String recipient, String subject, String body) {
+
         String host = "mail.memostickrescue.eu.org";
 
         Properties properties = new Properties();

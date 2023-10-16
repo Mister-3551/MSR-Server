@@ -7,9 +7,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-public final class Jwks {
+public final class jwkSource {
 
-    private Jwks() {
+    private jwkSource() {
     }
 
     public static RSAKey generateRsa() {

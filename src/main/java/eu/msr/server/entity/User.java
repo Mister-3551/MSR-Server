@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +24,8 @@ public class User {
     private String country;
     private boolean accountConfirmed;
     private boolean accountLocked;
-    private String unlockDate;
+    private LocalDateTime unlockDate;
+    private LocalDateTime passwordResetTimer;
+    private LocalDateTime passwordChangeTimer;
     private int reportsNumber;
 }

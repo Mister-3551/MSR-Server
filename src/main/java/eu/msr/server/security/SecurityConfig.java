@@ -6,8 +6,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import eu.msr.server.security.converter.AuthenticationConverter;
-import eu.msr.server.security.generator.Jwks;
+import eu.msr.server.security.generator.jwkSource;
 import eu.msr.server.security.handler.SignOutSuccessHandler;
+import eu.msr.server.security.processor.CustomObjectPostProcessor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,10 +82,28 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers("/get-suggestions").permitAll()
 
                                 .requestMatchers("/contact").permitAll()
+                                .requestMatchers("/reset").permitAll()
+                                .requestMatchers("/new-password").hasAuthority("CHANGE_EMAIL")
+                                .requestMatchers("/confirm").hasAuthority("CONFIRM_EMAIL")
 
-                                .requestMatchers("/user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                                .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
-                                .anyRequest().authenticated())
+                                .requestMatchers("/token-checker").hasAnyAuthority("CHANGE_EMAIL", "CONFIRM_EMAIL")
+
+                                .requestMatchers("/u/").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/missions").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/missions/statistics").hasAuthority("ROLE_USER")
+
+                                .requestMatchers("/u/search").hasAuthority("ROLE_USER")
+
+                                .requestMatchers("/u/account").hasAuthority("ROLE_USER")
+
+                                .requestMatchers("/u/profile").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/profile/weapons").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/profile/followers").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/profile/following").hasAuthority("ROLE_USER")
+
+                                .requestMatchers("/a/").hasAuthority("ROLE_ADMIN")
+
+                                .anyRequest().authenticated().withObjectPostProcessor(new CustomObjectPostProcessor()))
                 .logout(signOut ->
                         signOut
                                 .logoutUrl("/sign-out")
@@ -119,14 +138,14 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        rsaKey = Jwks.generateRsa();
+        rsaKey = jwkSource.generateRsa();
         JWKSet jwkSet = new JWKSet(rsaKey);
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
     @Bean
-    JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwks) {
-        return new NimbusJwtEncoder(jwks);
+    JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
     }
 
     @Bean
@@ -140,8 +159,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
+    public void addCorsMappings(CorsRegistry corsRegistry) {
+        corsRegistry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST")
                 .allowedHeaders("Origin", "Content-Type", "Authorization")

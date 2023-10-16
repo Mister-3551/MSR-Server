@@ -23,12 +23,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmailAddress) throws UsernameNotFoundException {
 
-        Optional<User> userByUsername = usersRepository.findByUsernameOrEmailAddress(usernameOrEmailAddress);
-        if (!userByUsername.isPresent()) {
+        Optional<User> userBy = usersRepository.findByUsernameOrEmailAddress(usernameOrEmailAddress);
+        if (!userBy.isPresent()) {
             throw new UsernameNotFoundException("Invalid credentials!");
         }
 
-        User user = userByUsername.get();
+        User user = userBy.get();
         if (user == null || !(user.getUsername().equals(usernameOrEmailAddress) || user.getEmailAddress().equals(usernameOrEmailAddress))) {
             throw new UsernameNotFoundException("Invalid credentials!");
         }
