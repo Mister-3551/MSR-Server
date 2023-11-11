@@ -81,6 +81,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers("/get-item").permitAll()
                                 .requestMatchers("/get-suggestions").permitAll()
 
+                                .requestMatchers("/images/profile/{name}").permitAll()
+                                .requestMatchers("/images/other/{name}").permitAll()
+
                                 .requestMatchers("/contact").permitAll()
                                 .requestMatchers("/reset").permitAll()
                                 .requestMatchers("/new-password").hasAuthority("CHANGE_EMAIL")
@@ -94,7 +97,10 @@ public class SecurityConfig implements WebMvcConfigurer {
 
                                 .requestMatchers("/u/search").hasAuthority("ROLE_USER")
 
+                                .requestMatchers("/u/leaderboard").hasAuthority("ROLE_USER")
+
                                 .requestMatchers("/u/account").hasAuthority("ROLE_USER")
+                                .requestMatchers("/u/account/update").hasAuthority("ROLE_USER")
 
                                 .requestMatchers("/u/profile").hasAuthority("ROLE_USER")
                                 .requestMatchers("/u/profile/weapons").hasAuthority("ROLE_USER")
@@ -102,6 +108,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers("/u/profile/following").hasAuthority("ROLE_USER")
 
                                 .requestMatchers("/a/").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/a/statistics").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/a/add-mission").hasAuthority("ROLE_ADMIN")
 
                                 .anyRequest().authenticated().withObjectPostProcessor(new CustomObjectPostProcessor()))
                 .logout(signOut ->

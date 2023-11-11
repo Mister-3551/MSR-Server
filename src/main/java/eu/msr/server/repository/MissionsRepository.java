@@ -1,7 +1,9 @@
 package eu.msr.server.repository;
 
 import eu.msr.server.entity.Mission;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,5 +26,11 @@ public interface MissionsRepository extends JpaRepository<Mission, Long> {
     @Query(value = "SELECT COUNT(m.id) AS id " +
             "FROM missions m " +
             "WHERE REPLACE(m.name, ' ', '_') = :missionName", nativeQuery = true)
-    int checkMission( @Param("missionName") String missionName);
+    int checkMission(@Param("missionName") String missionName);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO missions (name, image, map, description, price, best_time, deadline) " +
+            "SELECT :name, :imageName, :mapName, :description, :price, :bestTime, :deadline", nativeQuery = true)
+    int add(String name, String description, String imageName, String mapName, float price, String bestTime, String deadline);
 }

@@ -19,11 +19,17 @@ public class HomeService {
 
     public Home userHome(Authentication authentication) {
         CustomUser customUser = (CustomUser) authentication.getPrincipal();
-        return homeRepository.userHome(customUser.getUsername());
+        Home user = homeRepository.userHome(customUser.getUsername());
+        user.setMissionsImage("missions.png");
+        user.setLeaderboardImage("leaderboard.png");
+        return user;
     }
 
     public Home adminHome(Authentication authentication) {
         CustomUser customUser = (CustomUser) authentication.getPrincipal();
-        return homeRepository.adminHome(customUser.getUsername());
+        Home admin = homeRepository.userHome(customUser.getUsername());
+        admin.setStatisticsImage("statistics.png");
+        admin.setMissionsImage("missions.png");
+        return admin;
     }
 }

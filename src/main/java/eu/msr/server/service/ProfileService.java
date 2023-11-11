@@ -4,6 +4,7 @@ import eu.msr.server.entity.Account;
 import eu.msr.server.entity.Follower;
 import eu.msr.server.entity.Profile;
 import eu.msr.server.entity.Weapon;
+import eu.msr.server.record.AccountRequest;
 import eu.msr.server.record.ProfileRequest;
 import eu.msr.server.record.UsernamesRequest;
 import eu.msr.server.repository.AccountRepository;
@@ -13,8 +14,10 @@ import eu.msr.server.repository.WeaponsRepository;
 import eu.msr.server.security.CustomUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 @Service
@@ -24,13 +27,17 @@ public class ProfileService {
     private final WeaponsRepository weaponsRepository;
     private final FollowersRepository followersRepository;
     private final AccountRepository accountRepository;
+    private final FileService fileService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository, WeaponsRepository weaponsRepository, FollowersRepository followersRepository, AccountRepository accountRepository) {
+    public ProfileService(ProfileRepository profileRepository, WeaponsRepository weaponsRepository, FollowersRepository followersRepository, AccountRepository accountRepository, FileService fileService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.profileRepository = profileRepository;
         this.weaponsRepository = weaponsRepository;
         this.followersRepository = followersRepository;
         this.accountRepository = accountRepository;
+        this.fileService = fileService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public Profile profile(Authentication authentication, UsernamesRequest usernamesRequest) {
@@ -68,8 +75,23 @@ public class ProfileService {
         return followersRepository.search(profileRequest.username());
     }
 
+    public ArrayList<Follower> leaderboard(Authentication authentication) {
+        return followersRepository.leaderboard();
+    }
+
     public Account account(Authentication authentication) {
         CustomUser customUser = (CustomUser) authentication.getPrincipal();
         return accountRepository.account(customUser.getUsername());
+    }
+
+    public boolean accountUpdate(Authentication authentication, AccountRequest accountRequest) throws IOException {
+        CustomUser customUser = (CustomUser) authentication.getPrincipal();
+
+        if (accountRequest.image() == null) {
+            return false;
+        }
+
+        String imageName = fileService.storeFile(customUser.getUsername(), accountRequest.image(), FileService.Types.PROFILE);
+        return accountRepository.accountUpdate(customUser.getUsername(), imageName, accountRequest.fullName()) == 1;
     }
 }

@@ -15,6 +15,9 @@ public class Home {
     private String username;
     private int rank;
     private String image;
+    private String leaderboardImage;
+    private String missionsImage;
+    private String statisticsImage;
     private int totalUsers;
     private int missions;
 }

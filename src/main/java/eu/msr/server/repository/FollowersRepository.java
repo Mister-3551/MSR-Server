@@ -30,4 +30,13 @@ public interface FollowersRepository extends JpaRepository<Follower, Long> {
             "JOIN statistics AS s ON u.id = s.id_user " +
             "WHERE u.username LIKE %:username%", nativeQuery = true)
     ArrayList<Follower> search(@Param("username") String username);
+
+    @Query(value = "SELECT u.id, u.username, s.rank, u.image " +
+            "FROM users u " +
+            "JOIN statistics s ON s.id_user = u.id " +
+            "JOIN missions_completed mc ON mc.id_user = u.id " +
+            "GROUP BY u.id, u.username, s.rank, u.image " +
+            "ORDER BY (COUNT(DISTINCT mc.id) / (SELECT COUNT(m.id) FROM missions m)) * 100 DESC, s.rank DESC, s.current_xp DESC " +
+            "LIMIT 9", nativeQuery = true)
+    ArrayList<Follower> leaderboard();
 }
