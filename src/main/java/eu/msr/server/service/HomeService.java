@@ -27,7 +27,7 @@ public class HomeService {
 
     public Home adminHome(Authentication authentication) {
         CustomUser customUser = (CustomUser) authentication.getPrincipal();
-        Home admin = homeRepository.userHome(customUser.getUsername());
+        Home admin = homeRepository.adminHome(customUser.getUsername());
         admin.setStatisticsImage("statistics.png");
         admin.setMissionsImage("missions.png");
         return admin;
