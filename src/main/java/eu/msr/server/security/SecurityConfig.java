@@ -83,6 +83,13 @@ public class SecurityConfig implements WebMvcConfigurer {
 
                                 .requestMatchers("/images/profile/{name}").permitAll()
                                 .requestMatchers("/images/other/{name}").permitAll()
+                                .requestMatchers("/images/news/{name}").permitAll()
+                                .requestMatchers("/images/weapons/{name}").permitAll()
+                                .requestMatchers("/images/missions/{name}").permitAll()
+
+                                .requestMatchers("/map/missions/{name}").permitAll()
+
+                                .requestMatchers("/video/intro/{name}").permitAll()
 
                                 .requestMatchers("/contact").permitAll()
                                 .requestMatchers("/reset").permitAll()
