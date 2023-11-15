@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ChartStatistics {
 
     @Id
-    private Long id;
+    private String id;
     private String string;
     private float number;
 }

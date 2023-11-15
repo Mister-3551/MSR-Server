@@ -19,20 +19,18 @@ public class AdminService {
 
     public Map<String, Object> weaponStatistics() {
 
-        //TODO last two of first three lists not working correctly
         Map<String, Object> charts = new HashMap<>();
         ArrayList<ChartStatistics> weaponStatistics = adminRepository.weaponsStatistics();
         ArrayList<ChartStatistics> playTimeStatistics = adminRepository.playTimeStatistics();
         ArrayList<ChartStatistics> successfulMissions = adminRepository.successfulMissions();
 
-        charts.put("pieChart", chartData(weaponStatistics, "% of Kills"));
-        charts.put("barChart", chartData(playTimeStatistics, "# of Players"));
-        charts.put("lineChart", chartData(successfulMissions, "# of Players"));
-
+        charts.put("pieChart", chartData(weaponStatistics, "% of Kills", null, null));
+        charts.put("barChart", chartData(playTimeStatistics, "Number of Players", "Play time in hours", "Number of players"));
+        charts.put("lineChart", chartData(successfulMissions, "Number of Players", "Completed missions per player in percent", "Number of players"));
         return charts;
     }
 
-    private Map<String, Object> chartData(ArrayList<ChartStatistics> chartStatistics, String label) {
+    private Map<String, Object> chartData(ArrayList<ChartStatistics> chartStatistics, String label, String xAxiosText, String yAxiosText) {
         List<String> strings = new ArrayList<>();
         List<Float> numbers = new ArrayList<>();
 
@@ -54,23 +52,80 @@ public class AdminService {
         List<Map<String, Object>> datasets = new ArrayList<>();
         datasets.add(dataset);
 
-        Map<String, Object> legendOptions = new HashMap<>();
-        legendOptions.put("display", false);
-
-        Map<String, Object> plugins = new HashMap<>();
-        plugins.put("legend", legendOptions);
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("plugins", plugins);
-        options.put("maintainAspectRatio", false);
-        options.put("responsive", true);
+        Map<String, Object> options = getOptions(xAxiosText, yAxiosText);
 
         Map<String, Object> chartData = new HashMap<>();
         chartData.put("labels", strings);
         chartData.put("datasets", datasets);
         chartData.put("options", options);
-
         return chartData;
+    }
+
+    private static Map<String, Object> getOptions(String xAxiosText, String yAxiosText) {
+
+        Map<String, Object> plugins = getPlugins(xAxiosText, yAxiosText);
+
+        Map<String, Object> scales = getScales(xAxiosText, yAxiosText);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("plugins", plugins);
+
+        if (xAxiosText != null && yAxiosText != null) {
+            options.put("scales", scales);
+        }
+
+        options.put("maintainAspectRatio", false);
+        options.put("responsive", true);
+        return options;
+    }
+
+    private static Map<String, Object> getPlugins(String xAxiosText, String yAxiosText) {
+        Map<String, Object> labels = new HashMap<>();
+        labels.put("usePointStyle", true);
+
+        Map<String, Object> legend = new HashMap<>();
+
+        if (xAxiosText == null && yAxiosText == null) {
+            legend.put("display", true);
+            legend.put("position", "right");
+            legend.put("labels", labels);
+            legend.put("onClick", "(e) => e.stopPropagation()");
+        } else {
+            legend.put("display", false);
+        }
+
+        Map<String, Object> plugins = new HashMap<>();
+        plugins.put("legend", legend);
+        return plugins;
+    }
+
+    private static Map<String, Object> getScales(String xAxiosText, String yAxiosText) {
+
+        Map<String, Object> ticks = new HashMap<>();
+        ticks.put("suggestedMin", 0);
+        ticks.put("stepSize", 1);
+
+        Map<String, Object> xScaleTitle = new HashMap<>();
+        xScaleTitle.put("display", true);
+        xScaleTitle.put("text", xAxiosText);
+
+        Map<String, Object> yScaleTitle = new HashMap<>();
+        yScaleTitle.put("display", true);
+        yScaleTitle.put("text", yAxiosText);
+
+        Map<String, Object> xScale = new HashMap<>();
+        xScale.put("beginAtZero", true);
+        xScale.put("title", xScaleTitle);
+
+        Map<String, Object> yScale = new HashMap<>();
+        yScale.put("beginAtZero", true);
+        yScale.put("title", yScaleTitle);
+        yScale.put("ticks", ticks);
+
+        Map<String, Object> scales = new HashMap<>();
+        scales.put("x", xScale);
+        scales.put("y", yScale);
+        return scales;
     }
 
     private List<String> generateRandomColors(int count, boolean border) {

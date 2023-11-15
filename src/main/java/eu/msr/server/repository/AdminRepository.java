@@ -10,36 +10,44 @@ import java.util.ArrayList;
 @Repository
 public interface AdminRepository extends JpaRepository<ChartStatistics, Long> {
 
-    @Query(value = "SELECT ROW_NUMBER() OVER() AS id, " +
-            "name AS string, " +
-            "CASE WHEN rounded_kills = (MAX(rounded_kills) OVER ()) THEN rounded_kills - (SUM(rounded_kills) OVER () - 100) ELSE rounded_kills END AS number " +
+    @Query(value = "SELECT CONCAT('W', ROW_NUMBER() OVER (ORDER BY rounded_data.id)) AS id, " +
+            "       rounded_data.name AS string, " +
+            "       CASE " +
+            "           WHEN rounded_data.rounded_kills = (MAX(rounded_data.rounded_kills) OVER ()) THEN rounded_data.rounded_kills - (SUM(rounded_data.rounded_kills) OVER () - 100) " +
+            "           ELSE rounded_data.rounded_kills " +
+            "       END AS number " +
             "FROM ( " +
-            "    SELECT w.id, w.name, ROUND(IFNULL((ws.total_kills / _total_kills) * 100, 0), 2) AS rounded_kills " +
-            "    FROM weapons w " +
-            "    LEFT JOIN weapons_statistics ws ON ws.id_weapon = w.id " +
-            "    CROSS JOIN (SELECT IFNULL(SUM(ws.total_kills), 0) AS _total_kills FROM weapons_statistics ws) AS total " +
-            "    GROUP BY w.id, w.name " +
-            ") AS rounded_data " +
-            "ORDER BY rounded_data.id", nativeQuery = true)
+            "         SELECT w.id, w.name, ROUND(IFNULL((ws.total_kills / _total_kills) * 100, 0), 2) AS rounded_kills " +
+            "         FROM weapons w\n" +
+            "                  LEFT JOIN weapons_statistics ws ON ws.id_weapon = w.id " +
+            "                  CROSS JOIN (SELECT IFNULL(SUM(ws.total_kills), 0) AS _total_kills FROM weapons_statistics ws) AS total " +
+            "         GROUP BY w.id, w.name " +
+            "     ) AS rounded_data " +
+            "ORDER BY rounded_data.id ", nativeQuery = true)
     ArrayList<ChartStatistics> weaponsStatistics();
 
-    @Query(value = "SELECT ROW_NUMBER() OVER() AS id, time_category AS string, COUNT(categories.id) AS number " +
-            "FROM ( " +
-            "  SELECT s.id, s.play_time, " +
-            "    CASE " +
-            "      WHEN s.play_time < 3600 THEN '< 1h' " +
-            "      WHEN s.play_time < 36000 THEN '< 10h' " +
-            "      WHEN s.play_time < 360000 THEN '< 100h' " +
-            "      WHEN s.play_time < 3600000 THEN '< 1000h' " +
-            "      ELSE '> 1000h' " +
-            "    END AS time_category " +
-            "  FROM statistics s " +
-            ") AS categories " +
-            "GROUP BY time_category " +
-            "ORDER BY time_category DESC", nativeQuery = true)
+    @Query(value = "WITH categories AS ( " +
+            "    SELECT '< 1h' AS time_category, 1 AS sort_order " +
+            "    UNION SELECT '< 10h', 2 " +
+            "    UNION SELECT '< 100h', 3 " +
+            "    UNION SELECT '< 1000h', 4 " +
+            "    UNION SELECT '> 1000h', 5 " +
+            ") " +
+            "SELECT CONCAT('P', ROW_NUMBER() OVER (ORDER BY c.sort_order ASC)) AS id, c.time_category AS string, COALESCE(COUNT(s.id), 0) AS number " +
+            "FROM categories c " +
+            "LEFT JOIN statistics s ON c.time_category =  " +
+            "    (CASE " +
+            "        WHEN s.play_time < 3600 THEN '< 1h' " +
+            "        WHEN s.play_time < 36000 THEN '< 10h' " +
+            "        WHEN s.play_time < 360000 THEN '< 100h' " +
+            "        WHEN s.play_time < 3600000 THEN '< 1000h' " +
+            "        ELSE '> 1000h' " +
+            "    END) " +
+            "GROUP BY c.time_category " +
+            "ORDER BY id ASC ", nativeQuery = true)
     ArrayList<ChartStatistics> playTimeStatistics();
 
-    @Query(value = "SELECT ROW_NUMBER() OVER() AS id," +
+    @Query(value = "SELECT CONCAT('M', ROW_NUMBER() OVER ()) AS id," +
             "    string.percent_range AS string," +
             "    COUNT(user_completion_percentage.completed_percentage) AS number " +
             "FROM (" +
